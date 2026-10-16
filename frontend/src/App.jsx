@@ -155,6 +155,8 @@ const PRODUCTS = [
 ];
 
 const CATEGORIES = ["All dishes", "Italian", "Indian", "American", "Japanese", "Thai", "Mediterranean", "Dessert"];
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
+const apiUrl = (path) => `${API_BASE_URL}${path}`;
 const MAX_HERO_SLIDES = 5;
 const HERO_SLIDES = [
   {
@@ -249,8 +251,8 @@ function App() {
       const timeout = window.setTimeout(() => controller.abort(), 5000);
       try {
         const [menuResponse, healthResponse] = await Promise.all([
-          fetch("/api/menu", { signal: controller.signal }),
-          fetch("/api/health", { signal: controller.signal }),
+          fetch(apiUrl("/api/menu"), { signal: controller.signal }),
+          fetch(apiUrl("/api/health"), { signal: controller.signal }),
         ]);
         if (!menuResponse.ok || !healthResponse.ok) {
           throw new Error("The ordering service is starting up.");
@@ -353,7 +355,7 @@ function App() {
     setOrderNotice("");
     setLoadingCheckout(true);
     try {
-      const response = await fetch("/api/checkout", {
+      const response = await fetch(apiUrl("/api/checkout"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -398,12 +400,12 @@ function App() {
     try {
       let target = currentOrder?.state.status === "awaiting_user" ? currentOrder : chatSession;
       if (!target || ["done", "failed"].includes(target.state.status)) {
-        const sessionResponse = await fetch("/api/chat/sessions", { method: "POST" });
+        const sessionResponse = await fetch(apiUrl("/api/chat/sessions"), { method: "POST" });
         const sessionPayload = await sessionResponse.json().catch(() => ({}));
         if (!sessionResponse.ok) throw new Error(sessionPayload.detail || "The assistant couldn't start a chat session.");
         target = sessionPayload;
       }
-      const response = await fetch(`/api/sessions/${target.session_id}/messages`, {
+      const response = await fetch(apiUrl(`/api/sessions/${target.session_id}/messages`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: message.trim() }),

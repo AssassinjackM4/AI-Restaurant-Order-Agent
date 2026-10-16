@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from threading import Lock
 from uuid import uuid4
 
@@ -12,9 +13,14 @@ from pydantic import BaseModel, Field, field_validator
 from main import MENU, State, get_llm, initial_state, run_turn
 
 app = FastAPI(title="Restaurant Order Agent API", version="1.0.0")
+allowed_origins = [
+    origin.strip().rstrip("/")
+    for origin in os.getenv("FRONTEND_ORIGINS", "").split(",")
+    if origin.strip()
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=allowed_origins or ["http://localhost:5173", "http://127.0.0.1:5173"],
     allow_credentials=False,
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type"],
