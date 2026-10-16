@@ -525,60 +525,66 @@ function App() {
           </div>
 
           {!apiReady && <div className="service-note"><span className="loader-dot" />{serviceError || "Connecting to the kitchen…"}</div>}
-          {apiReady && (
-            <div className="product-grid">
-              {visibleProducts.map((product) => {
-                const quantity = cart[product.id] || 0;
-                const available = stock[product.id] ?? 0;
-                return (
-                  <article className="food-card" key={product.id}>
-                    <div className="food-photo-wrap">
-                      <img
-                        className="food-photo"
-                        src={imageUrl(product.image)}
-                        alt={product.name}
-                        loading="lazy"
-                        onError={(event) => {
-                          event.currentTarget.onerror = null;
-                          event.currentTarget.src = imageUrl("photo-1547592180-85f173990554");
-                        }}
-                      />
-                      <span className={`food-tag ${available === 0 ? "sold-tag" : ""}`}><span />{available === 0 ? "Just sold out" : product.tag}</span>
-                      <button
-                        className={`favorite-button ${favorites[product.id] ? "favorite-active" : ""}`}
-                        onClick={() => setFavorites((previous) => ({ ...previous, [product.id]: !previous[product.id] }))}
-                        aria-label={favorites[product.id] ? `Remove ${product.name} from favorites` : `Add ${product.name} to favorites`}
-                        aria-pressed={Boolean(favorites[product.id])}
-                      >
-                        <Heart size={15} fill={favorites[product.id] ? "currentColor" : "none"} />
-                      </button>
+          <div className="product-grid">
+            {visibleProducts.map((product) => {
+              const quantity = cart[product.id] || 0;
+              const available = stock[product.id] ?? 0;
+              const soldOut = apiReady && available === 0;
+              return (
+                <article className="food-card" key={product.id}>
+                  <div className="food-photo-wrap">
+                    <img
+                      className="food-photo"
+                      src={imageUrl(product.image)}
+                      alt={product.name}
+                      loading="lazy"
+                      onError={(event) => {
+                        event.currentTarget.onerror = null;
+                        event.currentTarget.src = imageUrl("photo-1547592180-85f173990554");
+                      }}
+                    />
+                    <span className={`food-tag ${soldOut ? "sold-tag" : ""}`}><span />{!apiReady ? "Checking stock" : soldOut ? "Just sold out" : product.tag}</span>
+                    <button
+                      className={`favorite-button ${favorites[product.id] ? "favorite-active" : ""}`}
+                      onClick={() => setFavorites((previous) => ({ ...previous, [product.id]: !previous[product.id] }))}
+                      aria-label={favorites[product.id] ? `Remove ${product.name} from favorites` : `Add ${product.name} to favorites`}
+                      aria-pressed={Boolean(favorites[product.id])}
+                    >
+                      <Heart size={15} fill={favorites[product.id] ? "currentColor" : "none"} />
+                    </button>
+                  </div>
+                  <div className="food-info">
+                    <div className="food-title-row"><h3>{product.name}</h3><span className="rating">★ {product.rating}</span></div>
+                    <p>{product.description}</p>
+                    <div className="food-meta"><span><Clock3 size={14} /> {product.time}</span><span>{product.category}</span></div>
+                    <div className="food-buy-row">
+                      <strong className="price">{currency(product.price)}</strong>
+                      {quantity ? (
+                        <div className="quantity-control" aria-label={`${quantity} in bag`}>
+                          <button onClick={() => updateQuantity(product.id, -1)} aria-label={`Remove one ${product.name}`}><Minus size={15} /></button>
+                          <span>{quantity}</span>
+                          <button onClick={() => updateQuantity(product.id, 1)} aria-label={`Add one ${product.name}`}><Plus size={15} /></button>
+                        </div>
+                      ) : (
+                        <button
+                          className="add-button"
+                          onClick={() => updateQuantity(product.id, 1)}
+                          disabled={!apiReady || soldOut}
+                          aria-label={soldOut ? `${product.name} is sold out` : !apiReady ? "Ordering is unavailable while the kitchen reconnects" : `Add ${product.name} to bag`}
+                        >
+                          <Plus size={16} /> Add
+                        </button>
+                      )}
+                      <a className="quick-cart-button" href="#your-order" aria-label="Go to your bag">
+                        <ShoppingBag size={15} />
+                      </a>
                     </div>
-                    <div className="food-info">
-                      <div className="food-title-row"><h3>{product.name}</h3><span className="rating">★ {product.rating}</span></div>
-                      <p>{product.description}</p>
-                      <div className="food-meta"><span><Clock3 size={14} /> {product.time}</span><span>{product.category}</span></div>
-                      <div className="food-buy-row">
-                        <strong className="price">{currency(product.price)}</strong>
-                        {quantity ? (
-                          <div className="quantity-control" aria-label={`${quantity} in bag`}>
-                            <button onClick={() => updateQuantity(product.id, -1)} aria-label={`Remove one ${product.name}`}><Minus size={15} /></button>
-                            <span>{quantity}</span>
-                            <button onClick={() => updateQuantity(product.id, 1)} aria-label={`Add one ${product.name}`}><Plus size={15} /></button>
-                          </div>
-                        ) : (
-                          <button className="add-button" onClick={() => updateQuantity(product.id, 1)} aria-label={`Add ${product.name} to bag`}><Plus size={16} /> Add</button>
-                        )}
-                        <a className="quick-cart-button" href="#your-order" aria-label="Go to your bag">
-                          <ShoppingBag size={15} />
-                        </a>
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
-              {visibleProducts.length === 0 && <div className="empty-search"><Search size={25} /><strong>No dishes found</strong><span>Try another search or cuisine.</span></div>}
-            </div>
-          )}
+                  </div>
+                </article>
+              );
+            })}
+            {visibleProducts.length === 0 && <div className="empty-search"><Search size={25} /><strong>No dishes found</strong><span>Try another search or cuisine.</span></div>}
+          </div>
         </section>
 
         <section className="checkout-section" id="your-order">

@@ -117,6 +117,7 @@ button:disabled { cursor: not-allowed; opacity: .58; }
 .price { font: 700 13px "Manrope", sans-serif; }
 .add-button { display: inline-flex; align-items: center; gap: 5px; padding: 7px 10px; color: var(--green); background: #edf1e9; border: none; border-radius: 7px; font-size: 10px; font-weight: 700; }
 .add-button:hover { color: white; background: var(--green); }
+.add-button:disabled { cursor: not-allowed; opacity: .55; }
 .quick-cart-button { width: 30px; height: 29px; display: grid; flex: 0 0 auto; place-items: center; color: var(--green); background: #fff; border: 1px solid #e5e9e1; border-radius: 7px; transition: color .15s ease, background .15s ease; }
 .quick-cart-button:hover { color: #fff; background: var(--green); }
 .quantity-control { height: 29px; display: inline-flex; align-items: center; gap: 11px; padding: 0 5px; border: 1px solid #dce4d8; border-radius: 7px; color: #354b36; font-size: 10px; font-weight: 700; }
