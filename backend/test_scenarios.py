@@ -174,6 +174,24 @@ def test_api_menu_and_multi_item_checkout():
     assert next_state["status"] in {"done", "failed"}
 
 
+def test_api_allows_deployed_vercel_frontend_origin():
+    from fastapi.testclient import TestClient
+
+    import api
+
+    client = TestClient(api.app)
+    response = client.options(
+        "/api/menu",
+        headers={
+            "Origin": "https://ai-restaurant-order-agent.vercel.app",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "https://ai-restaurant-order-agent.vercel.app"
+
+
 def test_api_chat_can_check_stock_then_place_order():
     from fastapi.testclient import TestClient
 
