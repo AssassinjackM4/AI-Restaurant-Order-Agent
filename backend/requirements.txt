@@ -7,3 +7,4 @@ python-dotenv>=1.2.2
 python-docx>=1.2.0
 langchain-core>=0.3.0
 langgraph>=0.2.0
+langchain-groq>=0.2.0
